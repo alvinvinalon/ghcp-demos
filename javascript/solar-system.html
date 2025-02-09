@@ -70,6 +70,22 @@
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
     scene.add(sun);
 
+    // Add subtle background stars
+    const starGeometry = new THREE.BufferGeometry();
+    const starCount = 1000;
+    const starVertices = [];
+    for (let i = 0; i < starCount; i++) {
+      starVertices.push(
+        THREE.MathUtils.randFloatSpread(600),
+        THREE.MathUtils.randFloatSpread(600),
+        THREE.MathUtils.randFloatSpread(600)
+      );
+    }
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, opacity: 0.7, transparent: true });
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(stars);
+
     // Array to hold planet objects and their parameters
     const planets = [];
     // Planet data: name, size, distance from sun, color, orbital speed, rotation speed
