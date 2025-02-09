@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+*.so
+*.log
+*.pot
+*.mo
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.ipynb_checkpoints
+*.env
+*.venv
+.env
+.venv
+env/
+venv/
+ENV/
+venv.bak/
+venv.bak/
+
+# JavaScript
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+dist/
+build/
+*.log
+*.tsbuildinfo
+*.env
+*.cache
+coverage/
+.DS_Store
+
+# GitHub
+.github/
