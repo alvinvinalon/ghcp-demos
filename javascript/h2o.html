@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Water Molecule Simulation</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 2px solid #444;
+            margin: 20px;
+        }
+        .controls {
+            margin: 10px;
+        }
+        input[type="range"] {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Water Molecule Simulation</h1>
+    <canvas id="simCanvas" width="600" height="400"></canvas>
+    <div class="controls">
+        <label>Temperature: </label>
+        <input type="range" id="tempControl" min="0" max="100" value="25">
+        <span id="tempValue">25°C</span>
+    </div>
+
+    <script>
+        class WaterMolecule {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.angle = Math.random() * Math.PI * 2;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 2,
+                    y: (Math.random() - 0.5) * 2
+                };
+            }
+
+            update(temperature) {
+                const speed = temperature / 25;
+                this.x += this.velocity.x * speed;
+                this.y += this.velocity.y * speed;
+                this.angle += (Math.random() - 0.5) * 0.1 * speed;
+
+                if (this.x < 0 || this.x > canvas.width) this.velocity.x *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.velocity.y *= -1;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                // Oxygen atom (red)
+                ctx.beginPath();
+                ctx.fillStyle = '#ff4444';
+                ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Hydrogen atoms (white)
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(-12, -8, 4, 0, Math.PI * 2);
+                ctx.arc(12, -8, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const tempControl = document.getElementById('tempControl');
+        const tempValue = document.getElementById('tempValue');
+        const molecules = [];
+
+        // Create initial molecules
+        for (let i = 0; i < 10; i++) {
+            molecules.push(new WaterMolecule(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+            ));
+        }
+
+        function drawHydrogenBonds() {
+            const maxBondDistance = 40;
+            const temperature = parseFloat(tempControl.value);
+            const bondProbability = 1 - (temperature / 100);
+
+            ctx.strokeStyle = 'rgba(100, 200, 255, 0.3)';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < molecules.length; i++) {
+                for (let j = i + 1; j < molecules.length; j++) {
+                    const dx = molecules[i].x - molecules[j].x;
+                    const dy = molecules[i].y - molecules[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxBondDistance && Math.random() < bondProbability) {
+                        ctx.beginPath();
+                        ctx.moveTo(molecules[i].x, molecules[i].y);
+                        ctx.lineTo(molecules[j].x, molecules[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const temperature = parseFloat(tempControl.value);
+            drawHydrogenBonds();
+
+            molecules.forEach(molecule => {
+                molecule.update(temperature);
+                molecule.draw(ctx);
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        tempControl.addEventListener('input', () => {
+            tempValue.textContent = `${tempControl.value}°C`;
+        });
+
+        animate();
+    </script>
+</body>
+</html>
