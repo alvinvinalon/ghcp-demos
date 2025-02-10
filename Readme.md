@@ -11,7 +11,7 @@ This repository contains demos where GitHub Copilot is used to build various app
 
 ### JavaScript
 
-All of these samples use the three.js 3D framework and are coded in a single HTML file. To preview, simply install the required packages and double-click the HTML file.
+All of these samples use the three.js 3D framework and are coded in a single HTML file. To preview, simply double-click the HTML file from the file explorer.
 
 - [Big Bang Expansion](javascript/bigbang.html)
 - [Spinning Galaxy](javascript/galaxy.html)
