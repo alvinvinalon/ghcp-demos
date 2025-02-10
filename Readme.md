@@ -3,6 +3,10 @@
 
 This repository contains demos where GitHub Copilot is used to build various applications using the latest preview models (o3-mini, Claud 3.5 Sonnet, Gemini 2.0 Flash), technical and public features, as well as generally available features such as Copilot Edits. Copilot Edits allows GitHub Copilot to directly make changes to a file without the developer typing.
 
+## Note
+
+GitHub Copilot and its underlying AI models generate responses probabilistically, so your results may vary. You might not get the same code or responses as shown in the demo files. Feel free to adjust the prompts, switch models, and experiment to see different outcomes.
+
 ## Demo Contents
 
 ### Python
