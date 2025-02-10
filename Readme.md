@@ -1,7 +1,7 @@
 
 # GitHub Copilot Demos
 
-This repository contains demos where GitHub Copilot is used to build various applications using the latest preview models, technical and public features, as well as generally available features such as Copilot Edits. Copilot Edits allows GitHub Copilot to directly make changes to a file without the developer typing.
+This repository contains demos where GitHub Copilot is used to build various applications using the latest preview models (o3-mini, Claud 3.5 Sonnet, Gemini 2.0 Flash), technical and public features, as well as generally available features such as Copilot Edits. Copilot Edits allows GitHub Copilot to directly make changes to a file without the developer typing.
 
 ## Demo Contents
 
