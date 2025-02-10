@@ -35,15 +35,6 @@ To test out the prompt, you can delete the contents of a demo file, and use one 
 - You already know how to clone a repository
 - You know who to run a Python, JavaScript, or HTML file
 
-## Getting Started
-
-To get started with the demos, clone this repository and follow the instructions in each demo's directory.
-
-```bash
-git clone https://github.com/yourusername/ghcp-demos.git
-cd ghcp-demos
-```
-
 ## Contributing
 
 We welcome contributions to enhance these demos. Please fork the repository and submit a pull request with your changes.
