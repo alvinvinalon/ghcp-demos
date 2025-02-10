@@ -3,13 +3,27 @@
 
 This repository contains demos where GitHub Copilot is used to build various applications using the latest preview models, technical and public features, as well as generally available features such as Copilot Edits. Copilot Edits allows GitHub Copilot to directly make changes to a file without the developer typing.
 
-## Contents
+## Demo Contents
 
-TBC
+### Python
+- [Autonomous Snake duelling game](python/auto-snake.py)
+- [Gravity enabled ball in a Hexagon](python/ball-hexagon.py)
+
+### JavaScript
+
+All of these samples use the three.js 3D framework and are coded in a single HTML file. To preview, simply install the required packages and double-click the HTML file.
+
+- [Big Bang Expansion](javascript/bigbang.html)
+- [Spinning Galaxy](javascript/galaxy.html)
+- [Moving Water Molecules](javascript/h2o.html)
+- [3D Solar System](javascript/solar-system.html)
+
 
 ## Instructions
 
-The files are already pre-populated with the necessary code to run the demos. To test the different GitHub Copilot models, delete the existing code and submit the prompt examples in the [Build Prompts](./prompts/build-prompts.md) file.
+The files are pre-populated with the necessary code to run the demos. These demos were created using the prompts available in the [Build Prompts](./prompts/build-prompts.md) file.
+
+To test out the prompt, you can delete the contents of a demo file, and use one of the prompts available. I suggest using the GitHub Copilot Edits feature get the code automatically generated in the editor.
 
 ### Assumptions
 
