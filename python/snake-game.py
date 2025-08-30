@@ -1,98 +1,159 @@
+import os
 import time
 import random
-import os  # For clearing the screen
+
+# On Windows, use msvcrt for non-blocking key input
+try:
+    import msvcrt  # type: ignore
+    HAS_MSVCRT = True
+except Exception:  # Fallback (blocking input)
+    HAS_MSVCRT = False
 
 # Game settings
 GRID_WIDTH = 20
 GRID_HEIGHT = 15
 SNAKE_START_LENGTH = 3
-FOOD_PROBABILITY = 0.1  # Chance of food appearing each step
-SLEEP_TIME = 0.1  # Adjust for game speed
+SLEEP_TIME = 0.12  # frame delay (seconds)
 
-# Snake representation (list of coordinates: [(x1, y1), (x2, y2), ...])
-snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]  # Starting position
-direction = "RIGHT"  # Initial direction
-food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
-food_appeared = True
-
-def clear_screen():
-    """Clears the console screen."""
-    os.system('cls' if os.name == 'nt' else 'clear')
+DIRECTIONS = {
+    "UP": (0, -1),
+    "DOWN": (0, 1),
+    "LEFT": (-1, 0),
+    "RIGHT": (1, 0),
+}
 
 
-def draw_grid():
-    """Prints the game grid."""
+def clear_screen() -> None:
+    """Clear the console screen."""
+    os.system("cls" if os.name == "nt" else "clear")
+
+
+def place_food(snake: list[tuple[int, int]]) -> tuple[int, int]:
+    """Place food at a random empty position."""
+    empty = [(x, y) for y in range(GRID_HEIGHT) for x in range(GRID_WIDTH) if (x, y) not in snake]
+    return random.choice(empty) if empty else (-1, -1)
+
+
+def draw_grid(snake: list[tuple[int, int]], food: tuple[int, int], score: int) -> None:
+    """Render the game state to the console."""
+    snake_set = set(snake)
+    # Top border
+    print("#" * (GRID_WIDTH + 2))
     for y in range(GRID_HEIGHT):
+        row = ["#"]
         for x in range(GRID_WIDTH):
-            if (x, y) in snake:
-                print("O", end="")  # Snake body
+            if (x, y) == snake[0]:
+                row.append("O")  # head
+            elif (x, y) in snake_set:
+                row.append("o")  # body
             elif (x, y) == food:
-                print("F", end="")  # Food
+                row.append("*")  # food
             else:
-                print(".", end="")  # Empty space
-        print()
+                row.append(" ")
+        row.append("#")
+        print("".join(row))
+    # Bottom border
+    print("#" * (GRID_WIDTH + 2))
+    print(f"Score: {score}    Controls: WASD or Arrow Keys | Q to quit")
 
-def move_snake():
-    """Moves the snake one step in the current direction."""
-    global direction
+
+def read_direction(current: str) -> str:
+    """Read a direction from keyboard if available (Windows), else keep current.
+
+    Prevent reversing into itself.
+    """
+    opposite = {"UP": "DOWN", "DOWN": "UP", "LEFT": "RIGHT", "RIGHT": "LEFT"}
+    wanted = None
+
+    if HAS_MSVCRT and msvcrt.kbhit():
+        key = msvcrt.getch()
+        # Arrow keys come as a prefix (b'\xe0' or b'\x00') then a code
+        if key in (b"\xe0", b"\x00"):
+            code = msvcrt.getch()
+            mapping = {b"H": "UP", b"P": "DOWN", b"K": "LEFT", b"M": "RIGHT"}
+            wanted = mapping.get(code)
+        else:
+            k = key.decode(errors="ignore").lower()
+            if k == "w":
+                wanted = "UP"
+            elif k == "s":
+                wanted = "DOWN"
+            elif k == "a":
+                wanted = "LEFT"
+            elif k == "d":
+                wanted = "RIGHT"
+            elif k == "q":
+                # Immediate quit
+                raise KeyboardInterrupt
+
+    if wanted and wanted != opposite[current]:
+        return wanted
+    return current
+
+
+def step(snake: list[tuple[int, int]], direction: str, food: tuple[int, int]):
+    """Advance the game by one step.
+
+    Returns: (alive: bool, new_snake, new_food, ate: bool)
+    """
+    dx, dy = DIRECTIONS[direction]
     head_x, head_y = snake[0]
+    new_head = (head_x + dx, head_y + dy)
 
-    if direction == "UP":
-        new_head = (head_x, head_y - 1)
-    elif direction == "DOWN":
-        new_head = (head_x, head_y + 1)
-    elif direction == "LEFT":
-        new_head = (head_x - 1, head_y)
-    elif direction == "RIGHT":
-        new_head = (head_x + 1, head_y)
+    # Check wall collision
+    if not (0 <= new_head[0] < GRID_WIDTH and 0 <= new_head[1] < GRID_HEIGHT):
+        return False, snake, food, False
+    # Check self collision (allow moving into current tail position before it moves)
+    if new_head in snake[:-1]:
+        return False, snake, food, False
 
-    # Check for collisions
-    if (
-        new_head[0] < 0
-        or new_head[0] >= GRID_WIDTH
-        or new_head[1] < 0
-        or new_head[1] >= GRID_HEIGHT
-        or new_head in snake
-    ):
-        return False  # Game over
+    new_snake = [new_head] + snake[:]  # grow by default; pop if not eating
+    ate = new_head == food
+    if not ate:
+        new_snake.pop()  # move without growth
+        new_food = food
+    else:
+        new_food = place_food(new_snake)
 
-    snake.insert(0, new_head)  # Add new head
-    snake.pop()  # Remove tail
+    return True, new_snake, new_food, ate
 
-    # Generate new food if the snake hasn't eaten
-    if not food_appeared:
-        food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
-        food_appeared = True
 
-    return True  # Game continues
+def init_snake() -> list[tuple[int, int]]:
+    """Create starting snake centered, heading RIGHT."""
+    cx, cy = GRID_WIDTH // 2, GRID_HEIGHT // 2
+    return [(cx - i, cy) for i in range(SNAKE_START_LENGTH)]
 
-def play_game():
-    """Runs the main game loop."""
+
+def play_game() -> None:
+    snake = init_snake()
+    direction = "RIGHT"
+    food = place_food(snake)
+    score = 0
+
     while True:
         clear_screen()
-        draw_grid()
+        draw_grid(snake, food, score)
 
-        key = input("Use W/A/S/D to move. Press Q to quit: ").upper()
-
-        if key == 'Q':
+        try:
+            direction = read_direction(direction)
+        except KeyboardInterrupt:
+            print("\nQuitting...")
             break
 
-        if key == 'W':
-            direction = "UP"
-        elif key == 'S':
-            direction = "DOWN"
-        elif key == 'A':
-            direction = "LEFT"
-        elif key == 'D':
-            direction = "RIGHT"
-
-        if move_snake():
-            time.sleep(SLEEP_TIME) # Adjust for speed
-        else:
+        alive, snake, food, ate = step(snake, direction, food)
+        if not alive:
+            clear_screen()
+            draw_grid(snake, food, score)
             print("Game Over!")
             break
+        if ate:
+            score += 1
+
+        time.sleep(SLEEP_TIME)
 
 
 if __name__ == "__main__":
-    import time
-    play_game()
+    try:
+        play_game()
+    except KeyboardInterrupt:
+        print("\nExiting...")
